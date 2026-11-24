@@ -1,0 +1,53 @@
+BO WEB - GITHUB KURULUMU (tek seferlik, yaklasik 10 dakika)
+============================================================
+Sonuc: Panelden yaptiginiz her degisiklik (paket/taslak/hizmet ekleme-silme-duzenleme, sifre) GitHub deponuza
+yazilir ve linke sahip HERKESTE gorunur. Telefon, bilgisayar fark etmez.
+
+1) GITHUB'DA DEPO OLUSTURUN
+   github.com > sag ustte "+" > New repository. Ad: boweb. "Public" secili olsun (ucretsiz GitHub Pages icin gerekli).
+   "Create repository".
+
+2) DOSYALARI YUKLEYIN
+   Bu zipi bilgisayarda cikarin. Cikan her seyi (index.html, app.js, style.css ... ve "data" ile "taslaklar"
+   KLASORLERINI) depoya surukleyin: depo sayfasinda "uploading an existing file" / Add file > Upload files.
+   Klasorleri de dahil etmeyi unutmayin (data klasoru eksik olursa panelde "Baglantiyi simdi kur" dugmesiyle
+   baglanti elle de kurulabilir). Alta inip "Commit changes".
+
+3) SITEYI YAYINLAYIN (GitHub Pages)
+   Depo > Settings > Pages > "Deploy from a branch" > Branch: main, klasor: /(root) > Save.
+   1-2 dakika sonra adresiniz hazir olur: https://KULLANICIADINIZ.github.io/boweb/
+
+4) TOKEN OLUSTURUN (panel bununla depoya yazar)
+   GitHub > sag ust profil resmi > Settings > en altta Developer settings > Personal access tokens >
+   Tokens (classic) > Generate new token (classic).
+   - Note: boweb
+   - Expiration: No expiration
+   - Scope: sadece "public_repo" isaretli olsun
+   Generate token > cikan "ghp_..." ile baslayan metni kopyalayin (bir daha gosterilmez).
+   (Ince ayarli token kullanmak isterseniz: Fine-grained tokens > sadece boweb deposu > Contents: Read and write.)
+
+5) PANELI BAGLAYIN (tek seferlik)
+   Siteniz/#yonetim adresini acin, panel sifresiyle girin. "Tek seferlik baglanti" ekrani cikar:
+   - GitHub deposu: kullaniciadi/boweb (genelde kendiliginden dolar)
+   - Dal: main
+   - Token: 4. adimda kopyaladiginiz metin
+   "Bagla ve devam et". Bundan sonra panel hazir.
+   Panelin ustunde sari "Ortak kayit bagli degil" uyarisi cikarsa: uyarinin altinda NEDEN yazisi ve
+   "Baglantiyi simdi kur" dugmesi vardir. Dugmeye basip repo adini ve token'i girerek baglantiyi elle kurabilirsiniz
+   (data/auth.json dosyasi eksik olsa bile calisir; panel onu kendisi olusturur). Ilk girisi, mevcut icerigin oldugu tarayicidan yapin;
+   o tarayicidaki icerik depoya aktarilir.
+
+NASIL CALISIR / BILMENIZ GEREKENLER
+ * Panelde kaydedince degisiklik depoya yazilir; GitHub Pages yayini yenileyince (yaklasik 1 dakika)
+   tum ziyaretcilerde gorunur. Panelde "Kaydedildi" mesaji cikmasi yeterlidir.
+ * Panel sifresi kodda duz yazi olarak tutulmaz; sadece sifrelenmis ozeti depoda durur. Giris ekraninda sifre yazmaz.
+ * Sifreyi Ayarlar > Panel sifresi bolumunden degistirebilirsiniz. Degisince yeni girislerde yalnizca yeni sifre
+   gecerli olur; acik duran diger cihazlar birkac dakika icinde cikis yapar. (Degisikligin yayina yansimasi ~1 dk.)
+ * Token, sifrenizle sifrelenmis olarak depodaki data/auth.json dosyasinda saklanir; sifresiz kimse okuyamaz.
+   Guvenlik icin guclu bir sifre kullanin. Sifreyi unutursaniz: depodaki data/auth.json dosyasini silip
+   (ya da ilk haliyle degistirip) yeni token ile yeniden baglayabilirsiniz.
+ * Token'in suresi dolarsa ya da iptal ederseniz, girişte "Tek seferlik baglanti" ekrani yeniden cikar; yeni token girin.
+ * Iki cihazdan ayni anda duzenlerseniz gec kaydeden uyari alir ve guncel hali yuklenir; degisikligi tekrar yapin.
+ * Icerik toplam boyutu birkac MB'i gecmesin (cok buyuk gorsel yuklemeyin).
+ * Depoyu "Private" yapmayin (ucretsiz Pages calismaz).
+ * Kendi alan adinizi (domain) baglarsaniz da calisir: panel, depoyu data/auth.json icindeki bilgiden bulur.

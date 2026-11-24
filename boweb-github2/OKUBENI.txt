@@ -1,0 +1,44 @@
+BO WEB - site ve yonetim paneli
+====================================
+
+DOSYALAR
+  index.html   Site ve yonetim paneli (ayni sayfa)
+  style.css    Tasarim
+  app.js       Tum kod (site + panel)
+  data/        Ortak kayit dosyalari (auth.json, panel kaydedince state.json olusur)
+  taslaklar/   Taslak listeleri (restoran.js, gayrimenkul.js, ...)
+  nargile-demolar.js  10 nargile demo taslagi (app.js bunu okur)
+  logo.png     Varsayilan logo
+
+YAYINA ALMA
+  GitHub Pages: tum dosya ve klasorleri yukleyin, sonra KURULUM-GITHUB.txt adimlarini uygulayin.
+
+ADRESLER
+  Site:            adresiniz/
+  Yonetim paneli:  adresiniz/#yonetim
+  Panel sifresi:   Size verilen sifre (Ayarlar'dan degistirin)
+
+KAYITLAR VE SIFRE (TUM CIHAZLAR ORTAK - GITHUB)
+  Kurulum: KURULUM-GITHUB.txt. Kurulunca panelde yaptiginiz her degisiklik GitHub deponuza yazilir ve
+  siteyi acan herkeste gorunur (yaklasik 1 dk). Sifre kodda duz yazi olarak tutulmaz; Ayarlar'dan degistirilir.
+  Kurulmadan acilirsa panel sadece o tarayicida kaydeder ve panelde uyari gorunur.
+  Ayarlar > Yedek bolumunden verilerinizi metin olarak yedekleyebilirsiniz.
+
+DIL VE PARA BIRIMI (TURKCE TL / INGILIZCE DOLAR / ALMANCA EURO / ARAPCA DOLAR)
+  Ustteki dugme (TL TR / $ EN / EUR DE / $ AR) dili ve para birimini birlikte degistirir.
+  Secim yapmayan ziyaretcide tarayici dili belirler: Turkce -> TR, Almanca -> DE, Arapca -> AR (sagdan sola), digerleri -> EN.
+  Secim tarayicida hatirlanir.
+  Fiyat: paketlerdeki TL fiyat, secili dile gore guncel kurla dolara veya euroya cevrilir
+  (open.er-api.com). Kur alinamazsa app.js icindeki FX_FALLBACK degerleri (USD 50, EUR 58) kullanilir.
+  Panel > "Diller ve para birimi": kurlari elle sabitleme, Ingilizce ve Almanca metinler, slogan, adres.
+  Her hizmet, paket, adim, kategori ve is kartinin Ingilizce ve Almanca alanlari kendi
+  duzenleme formunun altindadir. Pakette "Ingilizce/Almanca: Fiyat" yazarsaniz kur yerine o kullanilir.
+  Hazir ornek taslaklar (emlak, kafe, restoran) tum dillerde gelir. Kendi yukledginiz taslaklarin
+  ICERIGI (iframe icindeki sayfalar) cevrilmez.
+
+NARGILE DEMOLARI
+  Taslaklar bolumunde "Nargile" kategorisinde 10 hazir demo vardir. Hepsi "Ornek"
+  etiketlidir; Ayarlar > "Ornek icerikleri temizle" ile diger orneklerle birlikte silinir.
+  Demolar paneli ilk actiginizda eski kayitli verinize de bir kez eklenir; sildiginizde geri gelmez.
+  Yeni demo eklemek/degistirmek icin nargile-demolar.js icindeki T listesini duzenleyin.
+  Not: Demo fiyatlari ornektir. Ingilizce/Almanca/Arapca dilde sadece baslik cevrilir.

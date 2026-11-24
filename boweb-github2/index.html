@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BO WEB</title>
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@600;700;800&family=Cairo:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+<div id="site"></div>
+<div id="admin" hidden></div>
+<div class="viewer" id="viewer" hidden></div>
+<div class="pv" id="pv"></div>
+<a class="wa-float" id="waFloat" href="https://wa.me/905014833198" target="_blank" rel="noopener" aria-label="WhatsApp ile yazın"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 01-12.4 7.5L3.5 21l1.6-4.9A8.5 8.5 0 1121 12z"/></svg></a>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+/* sırayla yükler; dosyalar klasörsüz (ana dizine) yüklenmişse onu da dener */
+(function(){
+  var L=[['restoran'],['gayrimenkul'],['berber-spor-guzellik-kafe'],['nargile'],['kurumsal'],['ceviriler']].map(function(x){return ['taslaklar/'+x[0]+'.js',x[0]+'.js'];});
+  L.push(['nargile-demolar.js']);L.push(['app.js']);
+  var i=0;
+  function next(){
+    if(i>=L.length)return;
+    var c=L[i++],k=0;
+    (function tryOne(){
+      var s=document.createElement('script');
+      s.src=c[k]+'?v=1';
+      s.onload=next;
+      s.onerror=function(){k++;if(k<c.length)tryOne();else next();};
+      document.body.appendChild(s);
+    })();
+  }
+  next();
+})();
+</script>
+</body>
+</html>
