@@ -293,7 +293,7 @@ const Throttle={
 
 /* ---------- sunucu katmanı (api.php): tüm cihazlar ve ziyaretçiler aynı veriyi görür ---------- */
 const Server={
-  on:false,mode:'',base:'/api',gh:{repo:'',branch:'main',sha:'',auth:null},rev:0,token:'',defaultPw:false,saving:false,pending:false,
+  on:false,why:'',mode:'',base:'/api',gh:{repo:'',branch:'main',sha:'',auth:null},rev:0,token:'',defaultPw:false,saving:false,pending:false,
   /* ===== GitHub modu: veri deponun data/ klasörüne yazılır, GitHub Pages herkese sunar ===== */
   b64(str){const by=new TextEncoder().encode(str);let bin='';for(let i=0;i<by.length;i+=0x8000)bin+=String.fromCharCode.apply(null,by.subarray(i,i+0x8000));return btoa(bin);},
   async ghApi(path,tok,opt){
@@ -301,8 +301,11 @@ const Server={
     catch(e){return null;}
   },
   async ghStatic(name){
-    try{const r=await fetch('data/'+name+'?_='+Date.now(),{cache:'no-store'});if(r.status!==200)return {status:r.status,j:null};let j=null;try{j=await r.json();}catch(e){}return {status:200,j};}
-    catch(e){return {status:0,j:null};}
+    const one=async url=>{try{const r=await fetch(url+'?_='+Date.now(),{cache:'no-store'});if(r.status!==200)return {status:r.status,j:null};let j=null;try{j=await r.json();}catch(e){return {status:200,j:null,bad:true};}return {status:200,j};}catch(e){return {status:0,j:null};}};
+    let r=await one('data/'+name);
+    if(name==='auth.json'&&!(r.status===200&&r.j))     /* dosya klasörsüz (kök dizine) yüklenmişse onu da dene */
+      {const r2=await one(name);if(r2.status===200&&r2.j&&r2.j.v===1)return r2;}
+    return r;
   },
   /* depodaki dosyanın güncel sha ve içeriği (yönetici); {sha,json} | null (yok) | undefined (hata) */
   async ghFile(name,tok,wantBody){
@@ -448,12 +451,14 @@ const Server={
     /* GitHub modu: depodaki data/auth.json varsa ortak kayıt depoya yazılır */
     this.mode='gh';
     const au=await this.ghStatic('auth.json');
+    this.why=au.status===0?'data/auth.json okunamadı (ağ hatası veya engellendi)':au.status===404?'data/auth.json bulunamadı (404). Depoda "data" klasörünün içinde auth.json olmalı.':au.status!==200?'data/auth.json açılamadı (hata '+au.status+')':(!au.j?'data/auth.json geçerli bir JSON değil.':(au.j.v===1&&au.j.salt?'':'data/auth.json içeriği beklenen biçimde değil.'));
     if(au.status===200&&au.j&&au.j.v===1&&au.j.salt){
       this.gh.auth=au.j;
       if(au.j.repo){this.gh.repo=au.j.repo;this.gh.branch=au.j.branch||'main';}
       else{const g=this.guessRepo();if(g){this.gh.repo=g.repo;this.gh.branch=g.branch;}}
       const r=await this.call('state');
-      if(r.status===200&&r.j&&r.j.ok){this.on=true;this.rev=r.j.rev|0;return r.j.state||null;}
+      if(r.status===200&&r.j&&r.j.ok){this.on=true;this.rev=r.j.rev|0;this.why='';return r.j.state||null;}
+      this.why='Kayıt dosyası okunamadı (hata '+(r.status||'bağlantı yok')+').';
     }
     this.mode='';
     return undefined; /* sunucu yok (GitHub Pages, düz hosting, dosyadan açma) */
@@ -1437,15 +1442,18 @@ const TV={
 function loginHTML(){
   return `<div class="login"><form class="box" data-form="login" novalidate><img src="${logoSrc()}" alt=""><h1>Yönetim paneli</h1><div class="field"><label for="f-pw">Şifre</label><input type="password" id="f-pw" name="pw" autocomplete="current-password"></div><p class="err" data-err></p><button class="btn btn-primary" type="submit">Giriş yap</button><a class="btn btn-ghost btn-sm" href="#site" style="justify-self:center">Siteye dön</a></form></div>`;
 }
+function noSrvBanner(){
+  return '<div class="banner">Ortak kayıt bağlı değil: yaptığınız değişiklikler yalnızca bu tarayıcıda saklanır, diğer cihazlar ve ziyaretçiler görmez. Siteyi GitHub’a yükleyip KURULUM-GITHUB.txt adımlarını uygulayın.'+(Server.why?'<br><small>Neden: '+esc(Server.why)+'</small>':'')+'<br><button type="button" class="btn btn-primary btn-sm" data-act="open-setup" style="margin-top:8px">Bağlantıyı şimdi kur</button></div>';
+}
 function setupHTML(){
   const g=Server.guessRepo(),cur=Server.gh.repo||(g&&g.repo)||'',br=Server.gh.branch||(g&&g.branch)||'main';
   return `<div class="login"><form class="box" data-form="ghsetup" novalidate><img src="${logoSrc()}" alt=""><h1>Tek seferlik bağlantı</h1>
-  <p class="help">Şifre doğru. Panelin değişiklikleri herkese yayabilmesi için bu siteyi GitHub deponuza bağlayın (yalnızca bir kez). Adımlar KURULUM-GITHUB.txt dosyasında.</p>
+  <p class="help">Şifre doğru. Panelin değişiklikleri herkese yayabilmesi için bu siteyi GitHub deponuza bağlayın (yalnızca bir kez). Adımlar KURULUM-GITHUB.txt dosyasında.</p>${A.setup&&A.setup.manual&&Server.why?`<p class="help" style="color:var(--warn,#e8b04a)">Otomatik bağlantı kurulamadı: ${esc(Server.why)} Aşağıdaki formla bağlantıyı elle kurabilirsiniz.</p>`:''}
   <div class="field"><label for="f-repo">GitHub deposu (kullanici/depo-adi)</label><input id="f-repo" name="repo" value="${esc(cur)}" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
   <div class="field"><label for="f-branch">Dal (genelde main)</label><input id="f-branch" name="branch" value="${esc(br)}" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
   <div class="field"><label for="f-token">GitHub token (Contents: Read and write)</label><input type="password" id="f-token" name="token" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
   <p class="err" data-err></p><button class="btn btn-primary" type="submit">Bağla ve devam et</button>
-  <button type="button" class="btn btn-ghost btn-sm" data-act="logout" style="justify-self:center">Vazgeç</button></form></div>`;
+  ${A.setup&&A.setup.manual?'<button type="button" class="btn btn-ghost btn-sm" data-act="setup-skip" style="justify-self:center">Şimdilik atla (yalnızca bu tarayıcıda)</button>':'<button type="button" class="btn btn-ghost btn-sm" data-act="logout" style="justify-self:center">Vazgeç</button>'}</form></div>`;
 }
 function renderAdmin(){
   const root=$('#admin');
@@ -1455,7 +1463,7 @@ function renderAdmin(){
   root.innerHTML=`<div class="adm"><aside class="adm-side"><div class="adm-brand"><img src="${logoSrc()}" alt=""><div>${esc(state.brand.name)}<small>Yönetim paneli</small></div></div>
   <nav class="adm-nav" aria-label="Panel menüsü">${TABS.map(t=>`<button type="button" data-act="tab" data-tab="${t[0]}"${t[0]===tab[0]?' aria-current="true"':''}>${icon(t[2],18)}<span>${t[1]}</span></button>`).join('')}</nav>
   <div class="grow"></div><div class="adm-out"><a class="btn btn-primary btn-sm" href="#site" aria-label="Siteyi gör">${icon('eye',16)} <span>Siteyi gör</span></a><button type="button" class="btn btn-ghost btn-sm" data-act="logout" aria-label="Çıkış">${icon('out',16)} <span>Çıkış</span></button></div></aside>
-  <main class="adm-main"><div class="adm-head"><h1>${c.title}</h1>${c.desc?`<p>${c.desc}</p>`:''}</div>${Server.on?'':'<div class="banner">Ortak kayıt bağlı değil: yaptığınız değişiklikler yalnızca bu tarayıcıda saklanır, diğer cihazlar ve ziyaretçiler görmez. Siteyi GitHub’a yükleyip KURULUM-GITHUB.txt adımlarını uygulayın.</div>'}${Store.ok||Server.on?'':'<div class="banner">Bu görünümde kayıtlar tarayıcıya saklanamıyor. Sayfayı kapatınca değişiklikler sıfırlanır. Site ile panel yine birbirine bağlı çalışır.</div>'}${c.body}</main></div>`;
+  <main class="adm-main"><div class="adm-head"><h1>${c.title}</h1>${c.desc?`<p>${c.desc}</p>`:''}</div>${Server.on?'':noSrvBanner()}${Store.ok||Server.on?'':'<div class="banner">Bu görünümde kayıtlar tarayıcıya saklanamıyor. Sayfayı kapatınca değişiklikler sıfırlanır. Site ile panel yine birbirine bağlı çalışır.</div>'}${c.body}</main></div>`;
   if(A.tpl&&A.tpl.stage==='review')tplPreview();
 }
 function goTab(tab){
@@ -1491,17 +1499,22 @@ const FORMS={
     const w=Throttle.wait();if(w)return formErr(f,'Çok fazla yanlış deneme. '+Math.ceil(w/60)+' dk sonra tekrar deneyin.');
     const rec=(state.auth&&state.auth.verify)?state.auth:DEFAULT_AUTH;
     const dk=await PW.derive(v,rec.salt,rec.iter);
-    if(v&&PW.same(dk.verify,rec.verify)){Throttle.clear();A.authed=true;renderAdmin();}
+    if(v&&PW.same(dk.verify,rec.verify)){
+      Throttle.clear();A.lastPw=v;
+      if(location.protocol.indexOf('http')===0){A.setup={pw:v,manual:true};renderAdmin();return;}   /* ortak kayıt için bağlantı ekranı */
+      A.authed=true;renderAdmin();}
     else{Throttle.fail();formErr(f,'Şifre yanlış.');}
   },
   async ghsetup(f){
     const d=readForm(f);
     if(!A.setup)return;
     const btn=f.querySelector('button[type=submit]');if(btn)btn.disabled=true;
+    const prevMode=Server.mode;Server.mode='gh';
     const r=await Server.call('setup',{repo:d.repo,branch:d.branch,token:d.token,pw:A.setup.pw});
+    if(!(r.status===200&&r.j&&r.j.ok))Server.mode=prevMode;
     if(btn)btn.disabled=false;
     if(r.status===200&&r.j&&r.j.ok){
-      Server.setToken(r.j.token);A.authed=true;A.setup=null;
+      Server.on=true;Server.why='';Server.setToken(r.j.token);A.authed=true;A.setup=null;
       if(Server.rev===0)await pushState('Bağlantı kuruldu, içerik depoya aktarıldı.');
       renderAdmin();
     }
@@ -1586,6 +1599,8 @@ function bindAdmin(){
     }
     switch(act){
       case 'tab':goTab(b.dataset.tab);break;
+      case 'setup-skip':A.setup=null;A.authed=true;renderAdmin();break;
+      case 'open-setup':A.setup={pw:A.lastPw||'',manual:true};if(!A.setup.pw){A.authed=false;A.setup=null;toast('Önce şifrenizle giriş yapın.');renderAdmin();break;}A.authed=false;renderAdmin();break;
       case 'logout':A.setup=null;if(Server.on&&Server.token)Server.call('logout',{},Server.token);Server.setToken('');A.authed=false;renderAdmin();break;
       case 'new':A.edit={coll:k,id:null};renderAdmin();break;
       case 'edit':A.edit={coll:k,id};renderAdmin();break;

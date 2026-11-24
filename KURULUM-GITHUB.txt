@@ -10,7 +10,8 @@ yazilir ve linke sahip HERKESTE gorunur. Telefon, bilgisayar fark etmez.
 2) DOSYALARI YUKLEYIN
    Bu zipi bilgisayarda cikarin. Cikan her seyi (index.html, app.js, style.css ... ve "data" ile "taslaklar"
    KLASORLERINI) depoya surukleyin: depo sayfasinda "uploading an existing file" / Add file > Upload files.
-   Klasorleri de dahil etmeyi unutmayin (data klasoru olmazsa ortak kayit calismaz). Alta inip "Commit changes".
+   Klasorleri de dahil etmeyi unutmayin (data klasoru eksik olursa panelde "Baglantiyi simdi kur" dugmesiyle
+   baglanti elle de kurulabilir). Alta inip "Commit changes".
 
 3) SITEYI YAYINLAYIN (GitHub Pages)
    Depo > Settings > Pages > "Deploy from a branch" > Branch: main, klasor: /(root) > Save.
@@ -30,7 +31,10 @@ yazilir ve linke sahip HERKESTE gorunur. Telefon, bilgisayar fark etmez.
    - GitHub deposu: kullaniciadi/boweb (genelde kendiliginden dolar)
    - Dal: main
    - Token: 4. adimda kopyaladiginiz metin
-   "Bagla ve devam et". Bundan sonra panel hazir. Ilk girisi, mevcut icerigin oldugu tarayicidan yapin;
+   "Bagla ve devam et". Bundan sonra panel hazir.
+   Panelin ustunde sari "Ortak kayit bagli degil" uyarisi cikarsa: uyarinin altinda NEDEN yazisi ve
+   "Baglantiyi simdi kur" dugmesi vardir. Dugmeye basip repo adini ve token'i girerek baglantiyi elle kurabilirsiniz
+   (data/auth.json dosyasi eksik olsa bile calisir; panel onu kendisi olusturur). Ilk girisi, mevcut icerigin oldugu tarayicidan yapin;
    o tarayicidaki icerik depoya aktarilir.
 
 NASIL CALISIR / BILMENIZ GEREKENLER
